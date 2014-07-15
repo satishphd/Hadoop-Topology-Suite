@@ -6,7 +6,7 @@ using MapReduce and Hadoop. There are 3 different implementations based on 1) Si
 Uses third party R-tree implementation for filtering potentially intersecting polygons and Java port of General Polygon Clipping library by Daniel Bridenbecker.   
 
 Format of Input Base Layer:
-Layer identifier polygon-id 4 co-ordinates of MBR finally list of vertex co-ordinates
+(Layer identifier) (polygon-id) (4 co-ordinates of MBR) (list of vertex co-ordinates of polygon)
 
 e.g.
 b polygon-id mbr1x mbr1y mbr2x mbr2y v1x v1y v2x v2y ..... vnx,vny 
