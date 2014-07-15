@@ -7,5 +7,8 @@ Uses third party R-tree implementation for filtering potentially intersecting po
 
 Format of Input Base Layer:
 Layer identifier polygon-id 4 co-ordinates of MBR finally list of vertex co-ordinates
+
+e.g.
 b polygon-id mbr1x mbr1y mbr2x mbr2y v1x v1y v2x v2y ..... vnx,vny 
+
 Format of Input Overlay Layer is same without the "b" in the beginning
