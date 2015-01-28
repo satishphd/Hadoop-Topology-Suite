@@ -40,7 +40,7 @@ implements Reducer<IntWritable,Text, IntWritable, Text>, TIntProcedure
 	}
 	
     // the key is grid id and values are the polygon texts
-	@Override
+	
 	public void reduce(IntWritable gridId, Iterator<Text> values,
 			OutputCollector<IntWritable, Text> collector, Reporter arg3)
 			throws IOException 
@@ -155,7 +155,6 @@ implements Reducer<IntWritable,Text, IntWritable, Text>, TIntProcedure
 		
 		 } //end reduce
 
-	@Override
 	public boolean execute(int clipPolyId) 
 	{
 		PolyDefault basePoly = m_BasePolyMap.get(m_BasePolyId);

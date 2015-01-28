@@ -11,14 +11,13 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import com.gsu.cs.overlaymap.ClipMapper;
-import com.gsu.cs.overlaymap.Clipper;
+import com.gsu.cs.distributedcache.DistributedCacheMapper;
+import com.gsu.cs.distributedcache.DistributedCacheOverlay;
 
 public class GridOverlay  extends Configured implements Tool
 {
-    private static int m_dimxy;
-	@Override
-	public int run(String[] arg0) throws Exception 
+	
+	public int run(String[] arg) throws Exception 
 	{
 		JobConf conf = new JobConf( getConf(), GridOverlay.class);
 		if (conf == null) 
@@ -29,11 +28,13 @@ public class GridOverlay  extends Configured implements Tool
 	conf.setOutputKeyClass(IntWritable.class);
 	conf.setOutputValueClass(Text.class);
 	conf.setMapperClass(GridMapper.class);
-	//conf.setReducerClass(GridReducer.class);
-	conf.setNumReduceTasks(0);
-	//conf.set("mapred.tasktracker.map.tasks.maximum","1");
+	conf.setReducerClass(GridReducer.class);
 	
-	conf.setInt("dimxy", m_dimxy);
+	conf.setInt("dimxy", Integer.parseInt(arg[0]));
+	conf.setFloat("lowerX", Float.parseFloat(arg[1]));
+	conf.setFloat("lowerY", Float.parseFloat(arg[2]));
+	conf.setFloat("upperX", Float.parseFloat(arg[3]));
+	conf.setFloat("upperY", Float.parseFloat(arg[4]));
 	
 	FileInputFormat.setInputPaths(conf, new Path("In"));
 	FileOutputFormat.setOutputPath(conf,new Path("Out"));
@@ -45,8 +46,7 @@ public class GridOverlay  extends Configured implements Tool
 	
 	public static void main(String[] args) throws Exception 
 	{
-	int exitCode = ToolRunner.run(new GridOverlay(), args);
-	 m_dimxy = Integer.parseInt(args[0]);
-	System.exit(exitCode);
+	 int exitCode = ToolRunner.run(new GridOverlay(), args);
+	 System.exit(exitCode);
 	}
 }

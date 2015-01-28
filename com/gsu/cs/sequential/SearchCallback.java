@@ -14,7 +14,6 @@ public class SearchCallback implements TIntProcedure
     List<PolyDefault> outputList = new ArrayList<PolyDefault>();
     PolyDefault result;
     
-	@Override
 	public boolean execute(int basePolyId) 
 	{
 		

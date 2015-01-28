@@ -6,7 +6,6 @@ import com.seisw.util.geom.PolyDefault;
 //this class is used
 public class PolyLowXComparator implements Comparator<PolyDefault>
 {
-	@Override
 	 public int compare(PolyDefault poly1, PolyDefault poly2)
 	{
 	        /*

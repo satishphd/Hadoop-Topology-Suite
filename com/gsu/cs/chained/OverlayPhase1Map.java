@@ -1,4 +1,4 @@
-package com.gsu.cs.overlaymap;
+package com.gsu.cs.chained;
 
 import java.io.IOException;
 import java.util.StringTokenizer;
@@ -8,15 +8,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
-public class OverlayIterMapOnly
+public class OverlayPhase1Map
 extends Mapper<Object, Text, IntWritable, Text>
-{
-	//int basePolyCount = 7739;//4332;
-	
+{	
 	public void map(Object key, Text value, Context context)
 	throws IOException, InterruptedException 
     {
-		//break a string into tokens	
+		  //break a string into tokens	
 	      StringBuffer buf = null;
 	      String polygonKey = null;
 	      
@@ -42,16 +40,10 @@ extends Mapper<Object, Text, IntWritable, Text>
 	                  buf.append(itr.nextToken());
 	                  break;
 	          }
-	          //int polyKey = Integer.parseInt(polygonKey);
-	          //context.write(new IntWritable(polyKey), new Text(buf.toString()));
+	         
 	          context.write(null, new Text(buf.toString()));
-	          //System.out.println("base  " + polyKey + "   " + buf);
 	      }
     }
-	
-	/*private void cleanUp() 
-	{
-	}*/
 }
 	
 	

@@ -1,4 +1,4 @@
-package com.gsu.cs.overlaymap;
+package com.gsu.cs.chained;
 
 import java.awt.geom.Point2D;
 import java.io.IOException;
@@ -19,15 +19,13 @@ import com.gsu.cs.sequential.Parser;
 import com.seisw.util.geom.Clip;
 import com.seisw.util.geom.PolyDefault;
 
-public class ClipReducer extends MapReduceBase
+public class OverlayPhase2Reducer extends MapReduceBase
 implements Reducer<IntWritable,Text, IntWritable, Text> 
 {
 	IntWritable outputKey = new IntWritable();
-    int  basePolyCount = 10000;
-    //List<PolyDefault> basePolyList = new ArrayList<PolyDefault>();
+  
     HashMap<Text,List<Text>> map = new HashMap<Text,List<Text>>();
     
-	@Override
 	public void reduce(IntWritable key, Iterator<Text> values,
 			OutputCollector<IntWritable,Text> collector, Reporter arg3)
 			throws IOException 
@@ -43,7 +41,7 @@ implements Reducer<IntWritable,Text, IntWritable, Text>
 		int keyValue;	
 		
 		//values contain a basepolygon and/or one or more clip polygons
-		//so value is a one polygon
+		//so value is one polygon
 		PolyDefault clipPoly;
 		overlayPolyList = new ArrayList<PolyDefault>();
 		
@@ -58,7 +56,7 @@ implements Reducer<IntWritable,Text, IntWritable, Text>
 			{
 				basePolygon = new PolyDefault();
 				StringTokenizer baseItr = new StringTokenizer(temp.toString());
-	            //System.err.println("base : = " + baseText);
+	           
 	            while (baseItr.hasMoreTokens()) // tokens are strings from one serialized polygon
 	            {     
 	              if(count == 0)
@@ -81,9 +79,6 @@ implements Reducer<IntWritable,Text, IntWritable, Text>
 	        
 	              basePolygon.add(vertex);
 	             }
-	            //double x = basePolygon.getM_lbBox().getX();
-	            //String str = " " + x;
-	            //collector.collect(key, new Text(str));
 			}
 			else
 			{
@@ -120,54 +115,18 @@ implements Reducer<IntWritable,Text, IntWritable, Text>
 		if(overlayPolyList.size() > 0)
 		{
 			  PolyDefault result; 
-		       //List<PolyDefault> outputList = new ArrayList<PolyDefault>();
-		      	 
-		       for(int j =0; j<overlayPolyList.size(); j++)
-		       {
+		        
+		      for(int j =0; j<overlayPolyList.size(); j++)
+		      {
 		      		  result = (PolyDefault)Clip.intersection(basePolygon, 
 		      				 overlayPolyList.get(j));
 		      		  if(result.isEmpty() == false)
 		      		  {
-		      		   //outputList.add(result);
-		      		   keyValue = key.get() + basePolyCount;
+		      		   keyValue = key.get();
 		      		   outputKey.set(keyValue);
-		      		   //collector.collect(new IntWritable(keyValue), Parser.serializePoly(result));
 		      		   collector.collect(outputKey, Parser.serializePoly(result));
 		      		  }
 		       }
-
 		}
-			
-		 //collector.collect(key, new Text(" tt " + overlayPolyList.size()));
 	   }
  }		
-		/*
-		String size = " " +overlayPolyList.size();
-		collector.collect(new IntWritable(basePolygon.getId()), new Text(size) );
-		if(overlayPolyList.size() > 0)
-	    {
-	       PolyDefault result; 
-	       //List<PolyDefault> outputList = new ArrayList<PolyDefault>();
-	      	 
-	       for(int j =0; j<overlayPolyList.size(); j++)
-	       {
-	      		  result = (PolyDefault)Clip.intersection(basePolygon, 
-	      				 overlayPolyList.get(j));
-	      		  if(result.isEmpty() == false)
-	      		  {
-	      		   //outputList.add(result);
-	      		   keyValue = key.get() + basePolyCount;
-	      		   collector.collect(new IntWritable(keyValue), Parser.serializePoly(result));
-	      		  }
-	       }
-	     }*/
-   //} //end reduce
-
-	/*
-	while(values.hasNext())
-	 {
-		 Text text = values.next();
-	     //collector.collect(key,text);
-	 }
-	 //collector.collect(new IntWritable(9999),new Text("****************"));
-  }*/

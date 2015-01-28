@@ -1,4 +1,4 @@
-package com.gsu.cs.overlaymap;
+package com.gsu.cs.chained;
 
 import gnu.trove.TIntProcedure;
 
@@ -33,7 +33,7 @@ import com.infomatiq.jsi.rtree.RTree;
 import com.seisw.util.geom.Clip;
 import com.seisw.util.geom.PolyDefault;
 
-public class A extends MapReduceBase
+public class OverlayPhase2Mapper extends MapReduceBase
 implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 {
 	IntWritable baseKey = new IntWritable();
@@ -45,13 +45,13 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 	List<PolyDefault> clipPolyList = new ArrayList<PolyDefault>();
 	RTree tree = new RTree();  
 	private int clipPolyId;
-	//static List<Integer> basePolyIdList = new ArrayList<Integer>();
+
 	//clip to list of related base polys
 	HashMap<Integer,List<Integer>> mapping =  new HashMap<Integer,List<Integer>>();
 	boolean flag = false;
+	
 	public void configure(JobConf conf) 
 	{
-	 //filename = conf.get("map.input.file");
 	 try 
 	 {
 	  //initialize the RTree
@@ -81,11 +81,9 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 		 PolyDefault p1;
 		 int id;
 		
-		 //PolyDefault basePolygon = null;
 		 //Read File Line By Line
 		 while ((strLine = br.readLine()) != null) 	
 		 {
-		     //System.out.println(strLine);
 			 p1 = new PolyDefault();
 	         StringTokenizer itr = new StringTokenizer(strLine.toString());
 	         String strId = null;
@@ -116,7 +114,6 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
                 
 	
 	//key is offset and value is line of text
-	@Override
 	public void map(LongWritable arg0, Text value,
 			OutputCollector< IntWritable, Text> collect, Reporter arg3)
 			throws IOException
@@ -130,11 +127,9 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 		String strId = null;
 		PolyDefault p1 = null;
 		int id;
-		//System.out.println("filename : " + filename);	
 		if(collect != null)
 		{
 		 collector = collect;
-		 //System.out.println("not null collector");
 		}
 	      
 		if(text.toString().charAt(0) != 'b' )
@@ -147,7 +142,6 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
             {	  
               if(count == 0)
          	  {
-            	//itr.nextToken(); // temp change  
                 strId = itr.nextToken(); 
                 id = Integer.parseInt(strId); 
                 p1.setId(id);
@@ -161,7 +155,6 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
                 List<Integer> basePolyList = new ArrayList<Integer>();
     			mapping.put(id,basePolyList);
     			clipPolyValueMap.put(id, text);
-    			//collector.collect(new IntWritable(id), clipText);
          	  }
          	   count = count + 1;
          	    
@@ -193,10 +186,9 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
                 //to keep track of local base polygons in a map task
                 basePolyMap.put(id, p1); 
                 baseKey.set(id);
-                //collector.collect(new IntWritable(id), text);
+                
                 collector.collect(baseKey, text);
                 
-                //collector.collect(new IntWritable(id), new Text("base"));
                 Point2D lbox = new Point2D.Double(Double.parseDouble(itr.nextToken()), Double.parseDouble(itr.nextToken())); 
                 p1.setM_lbBox(lbox);
            
@@ -223,7 +215,6 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 
 	/*  callback function of Rtree's intersect method 
 	 *  prepare local mapping between clip polygon and base  polygon list */
-	@Override
 	public boolean execute(int basePolyId)
 	{	
 		if(mapping.containsKey(clipPolyId))
@@ -262,18 +253,7 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 			
 			tree.intersects(clipBox, this);
 		}
-		//if(collector!=null)
-	    //collector.collect(new Text("close rtree "), new IntWritable(basePolyIdList.size()));
 		
-		// Create file 
-		
-//		
-//		Configuration conf = new Configuration();
-//		FileSystem fs = FileSystem.get(URI.create("hdfs://localhost/user/spuri2/local/mapout.txt"), conf);
-//		OutputStream out = fs.create(new Path("hdfs://localhost/user/spuri2/local/mapoutput.txt"));
-		
-		  //FileWriter fstream = new FileWriter(filename);
-		  //BufferedWriter out = new BufferedWriter(fstream);
 		// compute local overlay for a given input split
 		Iterator<PolyDefault> itr1 = clipPolyList.iterator();
 		while(itr1.hasNext())
@@ -285,21 +265,18 @@ implements Mapper<LongWritable, Text, IntWritable,Text>, TIntProcedure
 			    Iterator<Integer> baseItr = baseIdList.iterator();
 				while(baseItr.hasNext())
 				{
-					//System.out.println("Inside while base list size " + basePolyIdList.size());
-					//if(basePolyMap.size() > 0)
-           		     //collector.collect(new Text("while base "), new IntWritable(basePolyMap.size()));
 					baseId =(int)baseItr.next();
 					// for local processing, basePolyMap contains only local base polygons
 					if(basePolyMap.containsKey(baseId))
 					{
 						basePoly = basePolyMap.get(baseId);
-						//collector.collect(new Text("xx"), new IntWritable(basePoly.getId()));
+						
 						resultPoly = (PolyDefault)Clip.intersection(basePoly, clipPoly);
 	                	if(resultPoly.isEmpty() == false)
 	            		{
 	                	   resultStr = Parser.serializePoly(resultPoly).toString();	
-	                	   //collector.collect(null,new Text(resultStr) );
-	                	   System.out.println(resultStr);
+	                	   collector.collect(null,new Text(resultStr) );
+	                	   //System.out.println(resultStr);
 	           	        }
 					}
 					else

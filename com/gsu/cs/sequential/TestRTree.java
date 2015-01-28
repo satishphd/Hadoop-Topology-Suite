@@ -79,8 +79,6 @@ public class TestRTree implements TIntProcedure
 		System.out.println("Sequential R-tree construction time : "  + (seqafter - seqbefore) + "  " + count);
    }
 
-
-	@Override
 	public boolean execute(int basePolyId)
 	{
 		//Poly out = Clip.intersection(basePolyList.get(basePolyId), overlayPolyList.get(clipPolyId));

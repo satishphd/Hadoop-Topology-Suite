@@ -1,4 +1,4 @@
-package com.gsu.cs.overlaymap;
+package com.gsu.cs.distributedcache;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
@@ -26,7 +26,7 @@ import com.gsu.cs.sequential.RelationshipGraph;
 import com.seisw.util.geom.Clip;
 import com.seisw.util.geom.PolyDefault;
 
-public class ClipMapper extends MapReduceBase
+public class DistributedCacheMapper extends MapReduceBase
 implements Mapper<LongWritable, Text, Text, IntWritable> 
 {
     List<PolyDefault> basePolyList = new ArrayList<PolyDefault>();
@@ -62,7 +62,6 @@ implements Mapper<LongWritable, Text, Text, IntWritable>
 		 //Read File Line By Line
 		 while ((strLine = br.readLine()) != null) 	
 		 {
-		     //System.out.println(strLine);
 			 count = 0;
 			 p1 = new PolyDefault();
 	         StringTokenizer itr = new StringTokenizer(strLine.toString());
@@ -92,7 +91,7 @@ implements Mapper<LongWritable, Text, Text, IntWritable>
              
                  p1.add(vertex);
              } 
-	         //System.out.println(p1.getM_lbBox().getX());
+	        
        	     basePolyList.add(p1);
        	     
 		 }
@@ -104,7 +103,6 @@ implements Mapper<LongWritable, Text, Text, IntWritable>
 		}
 	}
 	
-	@Override
 	public void map(LongWritable arg0, Text value,
 			OutputCollector<Text, IntWritable> collector, Reporter arg3)
 			throws IOException
@@ -152,7 +150,7 @@ implements Mapper<LongWritable, Text, Text, IntWritable>
 	          upperBaseX = p1.getM_ubBox().getX(); //clip poly
 	          /* Find the polygon with index where base's upperBox is no less than overlay's lower box */
 	          range = RelationshipGraph.BinarySearch(basePolyList, upperBaseX);
-	          //List<PolyDefault> remaining = overlayPolygons.GetRange(0, range);
+	          
 	          List<PolyDefault> remaining = basePolyList.subList(0, range);
 	          
 	          for(PolyDefault p: remaining)
@@ -169,7 +167,5 @@ implements Mapper<LongWritable, Text, Text, IntWritable>
 	            }
 	          }
 	      }//end if
-		  System.out.println("Number of output polygons is " + outputPolyCount);
-		  	
 	}
 }
